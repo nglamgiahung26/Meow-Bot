@@ -12,7 +12,7 @@ const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI || !SESSION_SECRET) {
-  console.error("Thiếu .env. Hãy tạo từ .env.example.");
+  console.error("Thiếu biến môi trường cấu hình Discord/Session.");
   process.exit(1);
 }
 
@@ -23,7 +23,14 @@ app.use(session({
   saveUninitialized: false,
   cookie: { httpOnly: true, sameSite: "lax", secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
+
+// Phục vụ các file tĩnh trong thư mục public
 app.use(express.static(path.join(__dirname, "public")));
+
+// Route trang chủ hiển thị index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 function loginRequired(req, res, next) {
   if (!req.session.user || !req.session.accessToken) {
